@@ -1,12 +1,12 @@
 use std::io::prelude::*;
 use zip::write::FileOptions;
 
-use walkdir::WalkDir;
-use std::path::Path;
 use std::fs::File;
+use std::path::Path;
+use walkdir::WalkDir;
 
-extern crate zip;
 extern crate walkdir;
+extern crate zip;
 
 fn main() {
     std::process::exit(real_main());
@@ -15,8 +15,10 @@ fn main() {
 fn real_main() -> i32 {
     let args: Vec<_> = std::env::args().collect();
     if args.len() < 3 {
-        println!("Usage: {} <source_directory> <destination_zipfile>",
-                 args[0]);
+        println!(
+            "Usage: {} <source_directory> <destination_zipfile>",
+            args[0]
+        );
         return 1;
     }
 
@@ -50,11 +52,11 @@ fn doit(src_dir: &str, dst_file: &str) -> zip::result::ZipResult<()> {
 
     for dent in it.filter_map(|e| e.ok()) {
         let path = dent.path();
-        let name = path.strip_prefix(Path::new(src_dir))
+        let name = path
+            .strip_prefix(Path::new(src_dir))
             .unwrap()
             .to_str()
             .unwrap();
-
 
         if path.is_file() {
             println!("adding {:?} as {:?} ...", path, name);
