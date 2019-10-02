@@ -30,7 +30,7 @@ impl ZipError {
 
         match *self {
             ZipError::Io(ref io_err) => {
-                ("Io Error: ".to_string() + (io_err as &error::Error).description()).into()
+                ("Io Error: ".to_string() + (io_err as &dyn error::Error).description()).into()
             }
             ZipError::InvalidArchive(msg) | ZipError::UnsupportedArchive(msg) => {
                 (self.description().to_string() + ": " + msg).into()
@@ -61,16 +61,16 @@ impl fmt::Display for ZipError {
 impl error::Error for ZipError {
     fn description(&self) -> &str {
         match *self {
-            ZipError::Io(ref io_err) => (io_err as &error::Error).description(),
+            ZipError::Io(ref io_err) => (io_err as &dyn error::Error).description(),
             ZipError::InvalidArchive(..) => "Invalid Zip archive",
             ZipError::UnsupportedArchive(..) => "Unsupported Zip archive",
             ZipError::FileNotFound => "Specified file not found in archive",
         }
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<&dyn error::Error> {
         match *self {
-            ZipError::Io(ref io_err) => Some(io_err as &error::Error),
+            ZipError::Io(ref io_err) => Some(io_err as &dyn error::Error),
             _ => None,
         }
     }

@@ -57,10 +57,10 @@ pub struct ZipArchive<R: Read + io::Seek> {
 }
 
 enum ZipFileReader<'a> {
-    Stored(Crc32Reader<io::Take<&'a mut Read>>),
-    Deflated(Crc32Reader<flate2::read::DeflateDecoder<io::Take<&'a mut Read>>>),
+    Stored(Crc32Reader<io::Take<&'a mut dyn Read>>),
+    Deflated(Crc32Reader<flate2::read::DeflateDecoder<io::Take<&'a mut dyn Read>>>),
     #[cfg(feature = "bzip2")]
-    Bzip2(Crc32Reader<BzDecoder<io::Take<&'a mut Read>>>),
+    Bzip2(Crc32Reader<BzDecoder<io::Take<&'a mut dyn Read>>>),
 }
 
 /// A struct for reading a zip file
@@ -238,7 +238,7 @@ impl<R: Read + io::Seek> ZipArchive<R> {
         }
 
         try!(self.reader.seek(io::SeekFrom::Start(pos)));
-        let limit_reader = (self.reader.by_ref() as &mut Read).take(data.compressed_size);
+        let limit_reader = (self.reader.by_ref() as &mut dyn Read).take(data.compressed_size);
 
         let reader = match data.compression_method {
             CompressionMethod::Stored => {
@@ -376,12 +376,12 @@ fn parse_extra_field(_file: &mut ZipFileData, data: &[u8]) -> ZipResult<()> {
 
 /// Methods for retreiving information on zip files
 impl<'a> ZipFile<'a> {
-    fn get_reader(&mut self) -> &mut Read {
+    fn get_reader(&mut self) -> &mut dyn Read {
         match self.reader {
-            ZipFileReader::Stored(ref mut r) => r as &mut Read,
-            ZipFileReader::Deflated(ref mut r) => r as &mut Read,
+            ZipFileReader::Stored(ref mut r) => r as &mut dyn Read,
+            ZipFileReader::Deflated(ref mut r) => r as &mut dyn Read,
             #[cfg(feature = "bzip2")]
-            ZipFileReader::Bzip2(ref mut r) => r as &mut Read,
+            ZipFileReader::Bzip2(ref mut r) => r as &mut dyn Read,
         }
     }
     /// Get the version of the file

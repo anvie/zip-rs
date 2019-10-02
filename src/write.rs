@@ -348,12 +348,12 @@ impl<W: Write + io::Seek> GenericZipWriter<W> {
         Ok(())
     }
 
-    fn ref_mut(&mut self) -> Option<&mut Write> {
+    fn ref_mut(&mut self) -> Option<&mut dyn Write> {
         match *self {
-            GenericZipWriter::Storer(ref mut w) => Some(w as &mut Write),
-            GenericZipWriter::Deflater(ref mut w) => Some(w as &mut Write),
+            GenericZipWriter::Storer(ref mut w) => Some(w as &mut dyn Write),
+            GenericZipWriter::Deflater(ref mut w) => Some(w as &mut dyn Write),
             #[cfg(feature = "bzip2")]
-            GenericZipWriter::Bzip2(ref mut w) => Some(w as &mut Write),
+            GenericZipWriter::Bzip2(ref mut w) => Some(w as &mut dyn Write),
             GenericZipWriter::Closed => None,
         }
     }
